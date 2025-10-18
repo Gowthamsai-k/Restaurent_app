@@ -1,0 +1,34 @@
+name: zomato_restaurent
+description: "A new Flutter project."
+
+# Prevent accidental publishing
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.9.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # iOS-style icons
+  cupertino_icons: ^1.0.8
+
+  # Firebase packages (compatible versions)
+  firebase_core: ^4.2.0
+  firebase_auth: ^6.1.1
+  cloud_firestore: ^6.0.3
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/fast-food-6974507.jpg
+    - assets/images/pr.jpeg
