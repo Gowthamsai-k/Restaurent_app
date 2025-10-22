@@ -83,4 +83,5 @@ class DefaultFirebaseOptions {
     authDomain: 'health-care-faooex.firebaseapp.com',
     storageBucket: 'health-care-faooex.firebasestorage.app',
   );
+
 }

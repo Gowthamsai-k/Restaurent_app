@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'login_screen.dart';
 import 'signup_screen.dart';
-
+import 'package:google_fonts/google_fonts.dart';
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
@@ -16,10 +16,26 @@ class WelcomeScreen extends StatelessWidget {
             'assets/images/fast-food-6974507.jpg', // 👉 Add your image here
             fit: BoxFit.cover,
           ),
+          Center(
+        child: Text(
+          'ZOM-REP',
+          style: GoogleFonts.bangers(
+            color: Colors.white,
+            fontSize: 120, // adjust as needed
+            shadows: [
+              Shadow(
+                offset: Offset(2, 2),
+                blurRadius: 3,
+                color: Colors.black45,
+              ),
+            ],
+          ),
+        ),
+      ),
 
           // Dark overlay for contrast
           Container(
-            color: Colors.black.withValues(alpha: 0.4),
+            color: Colors.black.withValues(alpha: 0.2),
           ),
 
           // Bottom buttons
