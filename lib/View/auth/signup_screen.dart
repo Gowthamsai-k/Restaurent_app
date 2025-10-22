@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import '../home/home_screen.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+// We are not navigating to HomeScreen from here, but I'll leave the import
+// in case you want to add it back in the _signup function.
+// import '../home/home_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -11,183 +14,274 @@ class SignupScreen extends StatefulWidget {
 }
 
 class _SignupScreenState extends State<SignupScreen> {
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _otpController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final _imagePicker = ImagePicker();
+  File? _licenseImage;
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  // Controllers for all the form fields
+  final _ownerNameController = TextEditingController();
+  final _mobileController = TextEditingController();
+  final _emailController = TextEditingController(); // Added email for login
+  final _passwordController =
+      TextEditingController(); // Added password for login
+  final _restaurantNameController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _licenseNumberController = TextEditingController();
 
-  String _verificationId = '';
-  bool _otpSent = false;
-  bool _isLoading = false;
-
-  Future<void> _sendOTP() async {
-    final phone = _phoneController.text.trim();
-    if (phone.isEmpty || _nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Please enter all fields')));
-      return;
-    }
-
-    setState(() => _isLoading = true);
-
-    await _auth.verifyPhoneNumber(
-      phoneNumber: '+91$phone',
-      timeout: const Duration(seconds: 60),
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        await _auth.signInWithCredential(credential);
-        _onSignupSuccess();
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        setState(() => _isLoading = false);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Verification failed: ${e.message}')));
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        setState(() {
-          _verificationId = verificationId;
-          _otpSent = true;
-          _isLoading = false;
-        });
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('OTP sent successfully')));
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
-    );
+  @override
+  void dispose() {
+    _ownerNameController.dispose();
+    _mobileController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _restaurantNameController.dispose();
+    _addressController.dispose();
+    _licenseNumberController.dispose();
+    super.dispose();
   }
 
-  Future<void> _verifyOTP() async {
-    final otp = _otpController.text.trim();
-    if (otp.isEmpty) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Please enter OTP')));
-      return;
+  // Function to pick an image from the gallery
+  Future<void> _pickImage() async {
+    final pickedFile = await _imagePicker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (pickedFile != null) {
+      setState(() {
+        _licenseImage = File(pickedFile.path);
+      });
     }
+  }
 
-    setState(() => _isLoading = true);
+  // Mock signup function
+  void _signup() {
+    // First, validate the form
+    final isFormValid = _formKey.currentState?.validate() ?? false;
 
-    try {
-      PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: _verificationId,
-        smsCode: otp,
+    // Check if an image was picked
+    if (_licenseImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please upload your license/proof image.'),
+          backgroundColor: Colors.red,
+        ),
       );
-      await _auth.signInWithCredential(credential);
-      _onSignupSuccess();
-    } on FirebaseAuthException catch (e) {
-      setState(() => _isLoading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('OTP verification failed: ${e.message}')));
-      }
+      return; // Stop if no image
     }
-  }
 
-  void _onSignupSuccess() {
-    setState(() => _isLoading = false);
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const HomeScreen()),
-    );
+    if (isFormValid) {
+      // --- BACKEND LOGIC GOES HERE ---
+      // This is where you would:
+      // 1. Call Firebase Auth (or your own backend) to create a user with
+      //    _emailController.text and _passwordController.text
+      // 2. Get the new user's UID.
+      // 3. Upload the _licenseImage to Firebase Storage.
+      // 4. Get the image URL.
+      // 5. Send ALL text fields + the image URL + the UID to your Flask/MongoDB
+      //    backend to create the new restaurant document.
+
+      print('Signup successful! (Mock)');
+      print('Owner: ${_ownerNameController.text}');
+      print('Restaurant: ${_restaurantNameController.text}');
+      print('License: ${_licenseNumberController.text}');
+      print('Image Path: ${_licenseImage?.path}');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Signup successful! (Mock)'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // TODO: After successful signup, navigate to the HomeScreen
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => const HomeScreen()),
+      // );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      resizeToAvoidBottomInset: true, // allows resizing when keyboard appears
-      body: Column(
-        children: [
-          // Image (80%)
-          Expanded(
-            flex: 6,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.asset(
-                  'assets/images/fast-food-6974507.jpg',
-                  fit: BoxFit.cover,
+      appBar: AppBar(title: const Text('Restaurant Signup')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Welcome, Partner!',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const Text(
+                'Please fill in the details to get started.',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+              const SizedBox(height: 24),
+
+              const Text(
+                'Owner Details',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.redAccent,
                 ),
-                 Container(
-                   color: Colors.black.withValues(alpha: 0.3),
-                 ),
-                 Center(
-        child: Text(
-          'Sign-Up',
-          style: GoogleFonts.bangers(
-            color: Colors.white,
-            fontSize: 60, // adjust as needed
-            shadows: [
-              Shadow(
-                offset: Offset(2, 2),
-                blurRadius: 3,
-                color: Colors.black45,
+              ),
+              const Divider(),
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                controller: _ownerNameController,
+                label: 'Owner Full Name',
+                icon: Icons.person_outline,
+              ),
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                controller: _emailController,
+                label: 'Login Email',
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                controller: _passwordController,
+                label: 'Login Password',
+                icon: Icons.lock_outline,
+                isPassword: true,
+              ),
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                controller: _mobileController,
+                label: 'Mobile Number',
+                icon: Icons.phone_android,
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 24),
+
+              const Text(
+                'Restaurant Details',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.redAccent,
+                ),
+              ),
+              const Divider(),
+              const SizedBox(height: 16),
+
+              _buildTextFormField(
+                controller: _restaurantNameController,
+                label: 'Restaurant Name',
+                icon: Icons.storefront_outlined,
+              ),
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                controller: _addressController,
+                label: 'Restaurant Address',
+                icon: Icons.location_on_outlined,
+                maxLines: 3,
+              ),
+              const SizedBox(height: 16),
+              _buildTextFormField(
+                controller: _licenseNumberController,
+                label: 'Govt. License Number (FSSAI, etc.)',
+                icon: Icons.article_outlined,
+              ),
+              const SizedBox(height: 24),
+
+              // --- Image Upload Section ---
+              const Text(
+                'License / Proof Upload',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                height: 150,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: InkWell(
+                  onTap: _pickImage,
+                  child: Center(
+                    child: _licenseImage == null
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.upload_file,
+                                size: 40,
+                                color: Colors.grey.shade600,
+                              ),
+                              const SizedBox(height: 8),
+                              const Text('Tap to upload image'),
+                            ],
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Image.file(
+                              _licenseImage!,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // --- Signup Button ---
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.redAccent,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  onPressed: _signup,
+                  child: const Text('Sign Up', style: TextStyle(fontSize: 18)),
+                ),
               ),
             ],
           ),
         ),
       ),
-              ],
-            ),
-          ),
+    );
+  }
 
-          // Bottom form (scrollable to avoid overflow)
-          Expanded(
-            flex: 2,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Full Name',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _phoneController,
-                    decoration: const InputDecoration(
-                      labelText: 'Phone Number',
-                      border: OutlineInputBorder(),
-                      prefixText: '+91 ',
-                    ),
-                    keyboardType: TextInputType.phone,
-                  ),
-                  const SizedBox(height: 8),
-                  if (_otpSent)
-                    TextField(
-                      controller: _otpController,
-                      decoration: const InputDecoration(
-                        labelText: 'Enter OTP',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isLoading
-                          ? null
-                          : _otpSent
-                              ? _verifyOTP
-                              : _sendOTP,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      child: _isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : Text(_otpSent ? 'Verify OTP' : 'Sign Up'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+  // Helper widget for text fields to avoid repetition
+  Widget _buildTextFormField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    int maxLines = 1,
+    bool isPassword = false,
+  }) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
+      keyboardType: keyboardType,
+      maxLines: maxLines,
+      obscureText: isPassword,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter $label';
+        }
+        if (label == 'Login Email' && !value.contains('@')) {
+          return 'Please enter a valid email';
+        }
+        if (label == 'Login Password' && value.length < 6) {
+          return 'Password must be at least 6 characters';
+        }
+        return null;
+      },
     );
   }
 }

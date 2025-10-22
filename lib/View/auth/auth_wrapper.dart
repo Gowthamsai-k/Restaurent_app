@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:zomato_restaurent/View/auth/welcome_screen.dart';
 import '../home/home_screen.dart';
-import 'login_screen.dart'; // adjust if your login file name differs
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
@@ -21,7 +21,7 @@ class AuthWrapper extends StatelessWidget {
           return const HomeScreen();
         } else {
           // 🚪 Not logged in — go to login
-          return const LoginScreen();
+          return const WelcomeScreen();
         }
       },
     );

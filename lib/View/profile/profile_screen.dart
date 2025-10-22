@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:zomato_restaurent/View/auth/welcome_screen.dart';
+import 'package:zomato_restaurent/View/profile/bank_payout.dart';
+import 'package:zomato_restaurent/View/profile/manage_promotion.dart';
+import 'package:zomato_restaurent/View/profile/restaurent_manager.dart';
 import 'package:zomato_restaurent/View/restaurent/menu_managment.dart';
+
+// --- ADD THIS IMPORT for logout functionality ---
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -45,7 +51,12 @@ class ProfileScreen extends StatelessWidget {
             title: 'Manage Promotions',
             icon: Icons.local_offer,
             onTap: () {
-              // TODO: Navigate to PromotionsScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ManagePromotionsScreen(),
+                ),
+              );
             },
           ),
           _buildListTile(
@@ -53,7 +64,12 @@ class ProfileScreen extends StatelessWidget {
             title: 'Bank & Payouts',
             icon: Icons.account_balance,
             onTap: () {
-              // TODO: Navigate to BankInfoScreen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const BankPayoutScreen(),
+                ),
+              );
             },
           ),
           _buildListTile(
@@ -61,21 +77,45 @@ class ProfileScreen extends StatelessWidget {
             title: 'Restaurant Settings',
             icon: Icons.settings,
             onTap: () {
-              // TODO: Navigate to RestaurantSettingsScreen (for hours, etc.)
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RestaurantSettingsScreen(),
+                ),
+              );
             },
           ),
 
           const Divider(),
 
-          // Logout Button
+          // --- MODIFIED LOGOUT BUTTON ---
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text('Log Out', style: TextStyle(color: Colors.red)),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-              );
+            onTap: () async {
+              // Make the function async
+              try {
+                // 1. Sign the user out of Firebase
+                await FirebaseAuth.instance.signOut();
+
+                // 2. Clear the navigation stack and send to WelcomeScreen
+                if (context.mounted) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const WelcomeScreen(),
+                    ),
+                    // This predicate removes all routes from the stack
+                    (Route<dynamic> route) => false,
+                  );
+                }
+              } catch (e) {
+                // Show an error if logout fails
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error logging out: $e')),
+                  );
+                }
+              }
             },
           ),
         ],
