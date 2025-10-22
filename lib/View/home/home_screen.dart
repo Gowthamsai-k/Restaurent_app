@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:zomato_restaurent/View/home/payments_screen.dart';
 
 import 'package:zomato_restaurent/View/orders/order_managment.dart';
+// import 'package:zomato_restaurent/View/home/payments_screen.dart'; // 1. REMOVED this line
 import 'package:zomato_restaurent/View/profile/profile_screen.dart';
-
-import 'payments_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

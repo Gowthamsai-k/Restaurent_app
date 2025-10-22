@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'order_details_screen.dart'; // We'll create this next
+import 'order_details_screen.dart'; // Your existing details screen
 
 class OrderManagementScreen extends StatefulWidget {
   const OrderManagementScreen({super.key});
@@ -25,27 +25,7 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
       'total': 300,
       'status': 'accepted',
     },
-    {
-      'id': '1003',
-      'customer': 'Charlie',
-      'items': ['Pasta x1', 'Salad x1'],
-      'total': 550,
-      'status': 'pending',
-    },
-    {
-      'id': '1004',
-      'customer': 'David',
-      'items': ['Steak x1'],
-      'total': 800,
-      'status': 'completed',
-    },
-    {
-      'id': '1005',
-      'customer': 'Eve',
-      'items': ['Fries x1', 'Coke x1'],
-      'total': 150,
-      'status': 'rejected',
-    },
+    // ... your other orders
   ];
 
   // This function updates the order's status and rebuilds the UI
@@ -65,12 +45,83 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
       MaterialPageRoute(
         builder: (context) => OrderDetailsScreen(
           order: order,
-          // We pass a function that knows *which* order to update
           onUpdateStatus: (newStatus) {
             _updateOrderStatus(order['id'], newStatus);
           },
         ),
       ),
+    );
+  }
+
+  // --- NEW FUNCTION TO SIMULATE A NEW ORDER ---
+  void _simulateNewOrder() {
+    // 1. Create a new dummy order
+    final String newId = 'ord${DateTime.now().millisecondsSinceEpoch}';
+    final Map<String, dynamic> newOrder = {
+      'id': newId,
+      'customer': 'New Customer',
+      'items': ['Special Burger x1', 'Fries x1'],
+      'total': 420,
+      'status': 'pending',
+    };
+
+    // 2. Add it to the list
+    setState(() {
+      _orders.insert(0, newOrder); // Add to the top of the list
+    });
+
+    // 3. Show the alert dialog
+    _showNewOrderDialog(newOrder);
+  }
+
+  // --- NEW FUNCTION TO SHOW THE ALERT ---
+  void _showNewOrderDialog(Map<String, dynamic> newOrder) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // User must tap a button
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'New Order Received!',
+            style: TextStyle(color: Colors.deepOrange),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'From: ${newOrder['customer']}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(newOrder['items'].join(', ')),
+              const SizedBox(height: 8),
+              Text(
+                'Total: ₹${newOrder['total']}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('CLOSE'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+            ),
+            ElevatedButton(
+              child: const Text('VIEW ORDER'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                _navigateToDetails(newOrder); // Open the details screen
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -100,6 +151,14 @@ class _OrderManagementScreenState extends State<OrderManagementScreen> {
               Tab(text: 'HISTORY'),
             ],
           ),
+          // --- ADDED THIS ACTION BUTTON ---
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.notifications_active),
+              onPressed: _simulateNewOrder,
+              tooltip: 'Simulate New Order',
+            ),
+          ],
         ),
         body: TabBarView(
           children: [

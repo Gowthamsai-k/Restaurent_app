@@ -1,112 +1,100 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:zomato_restaurent/View/auth/welcome_screen.dart';
+import 'package:zomato_restaurent/View/restaurent/menu_managment.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-
-    // Temporary placeholders – these can later be fetched from backend
-    const restaurantName = "Spice Haven";
-    const adminName = "John Doe";
-    const restaurantAddress = "12 MG Road, Hyderabad";
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Profile",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: const Color.fromARGB(255, 87, 131, 74),
-        centerTitle: true,
-        elevation: 2,
+        title: const Text('Profile & Settings'),
+        // No back button, since it's a main tab
+        automaticallyImplyLeading: false,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
-        child: Column(
-          children: [
-            // 🔹 Profile Image
-            const CircleAvatar(
-              radius: 60,
-              backgroundImage: AssetImage('assets/images/restaurant_logo.jpg'),
+      body: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        children: [
+          // A simple header
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            child: Text(
+              'Gowtham\'s Restaurant', // Replace with dynamic data
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 20),
+          ),
+          const Divider(),
 
-            // 🔹 Restaurant Info
-            Text(
-              restaurantName,
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              "Admin: $adminName",
-              style: const TextStyle(fontSize: 18, color: Colors.grey),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              "📍 $restaurantAddress",
-              style: const TextStyle(fontSize: 16, color: Colors.black54),
-              textAlign: TextAlign.center,
-            ),
-
-            const SizedBox(height: 30),
-            const Divider(thickness: 1.2),
-
-            // 🔹 Account Info
-            ListTile(
-              leading: const Icon(
-                Icons.phone_android,
-                color: Color.fromARGB(255, 87, 131, 74),
-              ),
-              title: const Text("Phone Number"),
-              subtitle: Text(user?.phoneNumber ?? "Not available"),
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.email,
-                color: Color.fromARGB(255, 87, 131, 74),
-              ),
-              title: const Text("Email"),
-              subtitle: Text(user?.email ?? "No email linked"),
-            ),
-
-            const SizedBox(height: 40),
-
-            // 🔹 Logout Button
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color.fromARGB(255, 87, 131, 74),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 14,
+          // Management Options
+          _buildListTile(
+            context,
+            title: 'Manage Menu',
+            icon: Icons.restaurant_menu,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MenuManagementScreen(),
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  '/login',
-                  (route) => false,
-                );
-              },
-              icon: const Icon(Icons.logout, color: Colors.white),
-              label: const Text(
-                "Logout",
-                style: TextStyle(fontSize: 18, color: Colors.white),
-              ),
-            ),
-          ],
-        ),
+              );
+            },
+          ),
+          _buildListTile(
+            context,
+            title: 'Manage Promotions',
+            icon: Icons.local_offer,
+            onTap: () {
+              // TODO: Navigate to PromotionsScreen
+            },
+          ),
+          _buildListTile(
+            context,
+            title: 'Bank & Payouts',
+            icon: Icons.account_balance,
+            onTap: () {
+              // TODO: Navigate to BankInfoScreen
+            },
+          ),
+          _buildListTile(
+            context,
+            title: 'Restaurant Settings',
+            icon: Icons.settings,
+            onTap: () {
+              // TODO: Navigate to RestaurantSettingsScreen (for hours, etc.)
+            },
+          ),
+
+          const Divider(),
+
+          // Logout Button
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Log Out', style: TextStyle(color: Colors.red)),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+              );
+            },
+          ),
+        ],
       ),
+    );
+  }
+
+  // Helper widget for a consistent list tile
+  Widget _buildListTile(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.deepOrange),
+      title: Text(title, style: const TextStyle(fontSize: 16)),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: onTap,
     );
   }
 }
