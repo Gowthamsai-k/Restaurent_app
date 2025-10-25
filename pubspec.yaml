@@ -22,12 +22,14 @@ dependencies:
   firebase_core: ^4.2.0
   firebase_auth: ^6.1.1
   cloud_firestore: ^6.0.3
+  flutter_native_splash: ^2.4.0 # Or latest version
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
   image_picker: ^1.0.7
+  flutter_launcher_icons: ^0.13.1 # Or latest version
 
 flutter:
   uses-material-design: true
@@ -36,3 +38,13 @@ flutter:
     - assets/images/fast-food-6974507.jpg
     - assets/images/pr.jpeg
     - assets/images/logo.png
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png" # Path to your logo
+
+flutter_native_splash:
+  color: "#3C6B3E" # Your dark green background color
+  image: assets/images/logo.png # Path to your logo
+  android: true
+  ios: true

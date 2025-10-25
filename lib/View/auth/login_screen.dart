@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen>
   // 2. Define Animation Controllers and Animations
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
-  late Animation<Offset> _logoSlideAnimation;
+
   late Animation<Offset> _titleSlideAnimation;
   late Animation<Offset> _formSlideAnimation;
 
@@ -43,13 +43,6 @@ class _LoginScreenState extends State<LoginScreen>
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
     // Logo slides down (from -0.5 offset to 0)
-    _logoSlideAnimation =
-        Tween<Offset>(begin: const Offset(0, -0.5), end: Offset.zero).animate(
-          CurvedAnimation(
-            parent: _controller,
-            curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
-          ),
-        );
 
     // Title slides up (from 0.5 offset to 0)
     _titleSlideAnimation =
