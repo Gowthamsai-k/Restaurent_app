@@ -113,7 +113,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                     onChanged: (newValue) {
                       _toggleAvailability(item['id'], newValue);
                     },
-                    activeColor: Colors.deepOrange,
+                    activeColor: Color.fromARGB(255, 75, 134, 78),
                   ),
                   IconButton(
                     icon: const Icon(Icons.edit, color: Colors.grey),
@@ -129,7 +129,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToAddItem,
-        backgroundColor: Colors.deepOrange,
+        backgroundColor: Color.fromARGB(255, 75, 134, 78),
         child: const Icon(Icons.add),
       ),
     );

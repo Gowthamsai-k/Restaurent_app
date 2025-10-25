@@ -131,7 +131,7 @@ class ProfileScreen extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Colors.deepOrange),
+      leading: Icon(icon, color: Color.fromARGB(255, 75, 134, 78)),
       title: Text(title, style: const TextStyle(fontSize: 16)),
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,

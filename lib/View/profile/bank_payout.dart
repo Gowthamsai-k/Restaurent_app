@@ -12,7 +12,11 @@ class BankPayoutScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const Icon(Icons.account_balance, size: 64, color: Colors.blueGrey),
+            const Icon(
+              Icons.account_balance,
+              size: 64,
+              color: Color.fromARGB(255, 75, 134, 78),
+            ),
             const SizedBox(height: 16),
             const Text(
               'Payout Details',
@@ -78,7 +82,7 @@ class BankPayoutScreen extends StatelessWidget {
     required String subtitle,
   }) {
     return ListTile(
-      leading: Icon(icon, color: Colors.redAccent),
+      leading: Icon(icon, color: Color.fromARGB(255, 75, 134, 78)),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
       subtitle: Text(subtitle, style: const TextStyle(fontSize: 16)),
     );

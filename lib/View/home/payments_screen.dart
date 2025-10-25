@@ -237,7 +237,7 @@ class PaymentsScreen extends StatelessWidget {
       barRods: [
         BarChartRodData(
           toY: y,
-          color: Colors.deepOrange,
+          color: Color.fromARGB(255, 75, 134, 78),
           width: 16,
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(6),
@@ -264,11 +264,11 @@ class PaymentsScreen extends StatelessWidget {
           final item = bestSellers[index];
           return ListTile(
             leading: CircleAvatar(
-              backgroundColor: Colors.deepOrange.withOpacity(0.1),
+              backgroundColor: Color.fromARGB(255, 75, 134, 78),
               child: Text(
                 '#${index + 1}',
                 style: const TextStyle(
-                  color: Colors.deepOrange,
+                  color: Color.fromARGB(255, 255, 255, 255),
                   fontWeight: FontWeight.bold,
                 ),
               ),
