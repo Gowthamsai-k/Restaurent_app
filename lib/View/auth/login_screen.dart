@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../home/home_screen.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// It's still a StatefulWidget because it needs to manage auth state (_isLoading, _otpSent, etc.)
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -11,7 +10,9 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+// 1. Add the SingleTickerProviderStateMixin
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
   // --- Auth Controllers ---
   final _phoneController = TextEditingController();
   final _otpController = TextEditingController();
@@ -20,17 +21,68 @@ class _LoginScreenState extends State<LoginScreen> {
   String _verificationId = '';
   bool _otpSent = false;
   bool _isLoading = false;
-  // --- All animation code has been removed ---
+
+  // 2. Define Animation Controllers and Animations
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _logoSlideAnimation;
+  late Animation<Offset> _titleSlideAnimation;
+  late Animation<Offset> _formSlideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // 3. Initialize the Animation Controller
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800), // 1.8 second animation
+    );
+
+    // General fade animation
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
+
+    // Logo slides down (from -0.5 offset to 0)
+    _logoSlideAnimation =
+        Tween<Offset>(begin: const Offset(0, -0.5), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.0, 0.4, curve: Curves.easeOut),
+          ),
+        );
+
+    // Title slides up (from 0.5 offset to 0)
+    _titleSlideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.2, 0.6, curve: Curves.easeOut),
+          ),
+        );
+
+    // Form slides up (from 0.5 offset to 0)
+    _formSlideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.4, 1.0, curve: Curves.easeOut),
+          ),
+        );
+
+    // 4. Start the animation
+    _controller.forward();
+  }
 
   @override
   void dispose() {
-    // We still need to dispose the text controllers
+    // 5. Dispose the controllers
+    _controller.dispose();
     _phoneController.dispose();
     _otpController.dispose();
     super.dispose();
   }
 
-  // --- Auth Functions (Copied from your code) ---
+  // --- Auth Functions (No changes here) ---
   Future<void> _sendOTP() async {
     final phone = _phoneController.text.trim();
     if (phone.isEmpty) {
@@ -136,102 +188,117 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   // --- TOP 75% SECTION (Image and Title) ---
                   Expanded(
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Container(
-                          color: const Color.fromARGB(255, 75, 134, 78),
-                        ),
-                        Container(color: Colors.black.withOpacity(0.2)),
-                        Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // --- LOGO ---
-                              Image.asset(
+                    child: Container(
+                      color: const Color.fromARGB(255, 60, 107, 62),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // 6. Wrap Logo in animations
+                            FadeTransition(
+                              opacity: _fadeAnimation,
+
+                              child: Image.asset(
                                 'assets/images/logo.png',
                                 height: 120,
                               ),
-                              // --- "Login" text is removed from here ---
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
+                  // --- END OPTIMIZATION ---
 
                   // --- BOTTOM 25% SECTION (Form) ---
                   Container(
                     color: Colors.white,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0,
+                      horizontal: 24.0,
                       vertical: 20.0,
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start, // Align text
-                      children: [
-                        // --- NEW LOGIN TITLE ---
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10.0),
-                          child: Text(
-                            'Login',
-                            style: GoogleFonts.righteous(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green[800],
+                    // 7. Wrap Form in animations
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Login Title
+                          SlideTransition(
+                            position: _titleSlideAnimation,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 20.0),
+                              child: Text(
+                                'Login',
+                                style: GoogleFonts.righteous(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.green[800],
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                        // --- END NEW LOGIN TITLE ---
-                        TextField(
-                          controller: _phoneController,
-                          decoration: const InputDecoration(
-                            labelText: 'Phone Number',
-                            border: OutlineInputBorder(),
-                            prefixText: '+91 ',
-                          ),
-                          keyboardType: TextInputType.phone,
-                        ),
-                        const SizedBox(height: 12),
-                        if (_otpSent)
-                          TextField(
-                            controller: _otpController,
-                            decoration: const InputDecoration(
-                              labelText: 'Enter OTP',
-                              border: OutlineInputBorder(),
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
-                        if (_otpSent) const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _isLoading
-                                ? null
-                                : _otpSent
-                                ? _verifyOTP
-                                : _sendOTP,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green[700],
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            child: _isLoading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white,
-                                  )
-                                : Text(
-                                    _otpSent ? 'Verify OTP' : 'Send OTP',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.white,
-                                    ),
+                          // Form Fields
+                          SlideTransition(
+                            position: _formSlideAnimation,
+                            child: Column(
+                              children: [
+                                TextField(
+                                  controller: _phoneController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Phone Number',
+                                    border: OutlineInputBorder(),
+                                    prefixText: '+91 ',
                                   ),
+                                  keyboardType: TextInputType.phone,
+                                ),
+                                const SizedBox(height: 12),
+                                if (_otpSent)
+                                  TextField(
+                                    controller: _otpController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Enter OTP',
+                                      border: OutlineInputBorder(),
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                  ),
+                                if (_otpSent) const SizedBox(height: 12),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: _isLoading
+                                        ? null
+                                        : _otpSent
+                                        ? _verifyOTP
+                                        : _sendOTP,
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green[700],
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
+                                      ),
+                                    ),
+                                    child: _isLoading
+                                        ? const CircularProgressIndicator(
+                                            color: Colors.white,
+                                          )
+                                        : Text(
+                                            _otpSent
+                                                ? 'Verify OTP'
+                                                : 'Send OTP',
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -243,11 +310,15 @@ class _LoginScreenState extends State<LoginScreen> {
           Positioned(
             top: 40,
             left: 10,
+            // 8. Wrap Back Button in fade
             child: SafeArea(
-              child: IconButton(
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.of(context).pop(),
-                tooltip: 'Back',
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.of(context).pop(),
+                  tooltip: 'Back',
+                ),
               ),
             ),
           ),
