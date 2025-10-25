@@ -1,0 +1,6 @@
+welcome screen background green : ARGB( 255,
+                      75,
+                      134,
+                      78,)
+
+                      login screen button green : Colors.green[700],
