@@ -2,8 +2,7 @@ name: Flutter macOS Build
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
 
 jobs:
@@ -14,12 +13,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Cache Flutter SDK
+      - name: Cache Flutter SDK
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('.github/workflows/flutter_macos.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
+
+      # Install Flutter
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.7'   # ✅ specify exact version
-          channel: 'stable'           # ✅ specify channel explicitly
-          architecture: x64           # ✅ use x64 for better compatibility
+          flutter-version: '3.35.7'   # ✅ includes Dart 3.9+
+          channel: 'stable'
+          architecture: x64
+
+      # Cache Dart & pub packages
+      - name: Cache pub packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
 
       - name: Flutter doctor
         run: flutter doctor -v
